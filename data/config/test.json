@@ -1,0 +1,6 @@
+{
+    "Quantization": "JPEG",
+    "Transformation": "basic",
+    "DC-compress": "DPCM",
+    "AC-compress": "RLC"
+}

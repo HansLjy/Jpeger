@@ -1,0 +1,18 @@
+add_library(Jpeger Jpeger.cc)
+target_include_directories(Jpeger PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(Jpeger PUBLIC DataStructure)
+target_link_libraries(Jpeger PUBLIC Transformation)
+target_link_libraries(Jpeger PUBLIC LosslessCompression)
+target_link_libraries(Jpeger PUBLIC Quantization)
+target_link_libraries(Jpeger PUBLIC Eigen3::Eigen)
+target_link_libraries(Jpeger PUBLIC ${JSONCPP_LIBRARIES})
+
+if(BUILD_TEST)
+    enable_testing()
+    add_executable(ZigZagTest ZigZagTest.cc)
+    target_link_libraries(ZigZagTest PRIVATE Jpeger)
+    target_link_libraries(ZigZagTest PRIVATE GTest::gtest_main)
+
+    include(GoogleTest)
+    gtest_discover_tests(ZigZagTest)
+endif()
