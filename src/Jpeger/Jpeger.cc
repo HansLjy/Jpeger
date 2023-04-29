@@ -1,5 +1,7 @@
 #include "Jpeger.hpp"
 #include <fstream>
+#include <ctime>
+#include "spdlog/spdlog.h"
 
 Jpeger::Jpeger(const Json::Value& config)
     : _quantizer(QuantizationFactory::GetQuantization(config["Quantization"].asString())),
@@ -9,7 +11,9 @@ Jpeger::Jpeger(const Json::Value& config)
 
 void Jpeger::Compress(const RGB &data, const std::string &filename) const {
     RGB origin = data;
+    auto t = clock();
     auto yuv = YUV(data);
+    spdlog::info("Time spent on RGB2YUV: {}", clock() - t);
 
     const int total_rows = data._R.rows();
     const int total_cols = data._R.cols();
@@ -18,15 +22,19 @@ void Jpeger::Compress(const RGB &data, const std::string &filename) const {
     
     MatrixXi Y = yuv._Y, U(down_sampled_rows, down_sampled_cols), V(down_sampled_rows, down_sampled_cols);
 
+
     // subsampling
+    t = clock();
     for (int row = 0; row < total_rows; row += 2) {
         for (int col = 0; col < total_cols; col += 2) {
             U(row >> 1, col >> 1) = (yuv._U(row, col) + yuv._U(row + 1, col) + yuv._U(row, col + 1) + yuv._U(row + 1, col + 1)) >> 2;
             V(row >> 1, col >> 1) = (yuv._V(row, col) + yuv._V(row + 1, col) + yuv._V(row, col + 1) + yuv._V(row + 1, col + 1)) >> 2;
         }
     }
+    spdlog::info("Time spent on subsampling: {}", clock() - t);
 
     // DCT
+    t = clock();
     for (int row = 0; row < total_rows; row += _block_size) {
         for (int col = 0; col < total_cols; col += _block_size) {
             _transformation->Transform(Y.block<_block_size, _block_size>(row, col));
@@ -38,11 +46,15 @@ void Jpeger::Compress(const RGB &data, const std::string &filename) const {
             _transformation->Transform(V.block<_block_size, _block_size>(row, col));
         }
     }
+    spdlog::info("Time spent on DCT: {}", clock() - t);
 
+    t = clock();
     _quantizer->QuantizeY(Y);
     _quantizer->QuantizeU(U);
     _quantizer->QuantizeV(V);
+    spdlog::info("Time spent on quantization: {}", clock() - t);
 
+    t = clock();
     VectorXi Y_DC(total_cols * total_rows / (_block_size * _block_size));
     VectorXi Y_AC(total_cols * total_rows - total_cols * total_rows / (_block_size * _block_size));
     int Y_DC_index = 0;
@@ -71,16 +83,19 @@ void Jpeger::Compress(const RGB &data, const std::string &filename) const {
             UV_AC_index += _block_size * _block_size - 1;
         }
     }
+    spdlog::info("Time spent on ZigZag: {}", clock() - t);
 
     std::stringstream output;
     output.write(reinterpret_cast<const char*>(&total_rows), sizeof(int));
     output.write(reinterpret_cast<const char*>(&total_cols), sizeof(int));
+    t = clock();
     _DC_compression->Compress(Y_DC, output);
     _DC_compression->Compress(U_DC, output);
     _DC_compression->Compress(V_DC, output);
     _AC_compression->Compress(Y_AC, output);
     _AC_compression->Compress(U_AC, output);
     _AC_compression->Compress(V_AC, output);
+    spdlog::info("Time spent on lossless compression: {}", clock() - t);
     
     std::ofstream output_file(filename);
     output_file << output.rdbuf();

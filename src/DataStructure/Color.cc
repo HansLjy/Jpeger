@@ -15,36 +15,15 @@ const Matrix<double, 3, 3> YUV::_yuv2rgb = (Matrix<double, 3, 3>() <<
 YUV::YUV(const MatrixXi& Y, const MatrixXi& U, const MatrixXi& V) : _Y(Y), _U(U), _V(V) {}
 
 YUV::YUV(const RGB& rgb)
-    : _Y(rgb._R.rows(), rgb._R.cols()),
-      _U(rgb._R.rows(), rgb._R.cols()),
-      _V(rgb._R.rows(), rgb._R.cols()) {
-    const int total_rows = rgb._R.rows();
-    const int total_cols = rgb._R.cols();
-    for (int col = 0; col < total_cols; col++) {
-        for (int row = 0; row < total_rows; row++) {
-            Eigen::Vector3d result = _rgb2yuv * (Eigen::Vector3d() << 
-                rgb._R(row, col), rgb._G(row, col), rgb._B(row, col)
-            ).finished();
-            _Y(row, col) = result(0);
-            _U(row, col) = result(1);
-            _V(row, col) = result(2);
-        }
-    }
+    : _Y((rgb._R.array().cast<float>() * _rgb2yuv(0, 0) + rgb._G.array().cast<float>() * _rgb2yuv(0, 1) + rgb._B.array().cast<float>() * _rgb2yuv(0, 2)).cast<int>()),
+      _U((rgb._R.array().cast<float>() * _rgb2yuv(1, 0) + rgb._G.array().cast<float>() * _rgb2yuv(1, 1) + rgb._B.array().cast<float>() * _rgb2yuv(1, 2)).cast<int>()),
+      _V((rgb._R.array().cast<float>() * _rgb2yuv(2, 0) + rgb._G.array().cast<float>() * _rgb2yuv(2, 1) + rgb._B.array().cast<float>() * _rgb2yuv(2, 2)).cast<int>()) {
 }
 
 YUV::operator RGB() {
-    const int total_rows = _Y.rows();
-    const int total_cols = _Y.cols();
-    MatrixXi R(total_rows, total_cols), G(total_rows, total_cols), B(total_rows, total_cols);
-    for (int col = 0; col < total_cols; col++) {
-        for (int row = 0; row < total_rows; row++) {
-            Eigen::Vector3d result = _yuv2rgb * (Eigen::Vector3d() << 
-                _Y(row, col), _U(row, col), _V(row, col)
-            ).finished();
-            R(row, col) = result(0);
-            G(row, col) = result(1);
-            B(row, col) = result(2);
-        }
-    }
-    return {R, G, B};
+    return {
+        (_Y.array().cast<float>() * _yuv2rgb(0, 0) + _U.array().cast<float>() * _yuv2rgb(0, 1) + _V.array().cast<float>() * _yuv2rgb(0, 2)).cast<int>(),
+        (_Y.array().cast<float>() * _yuv2rgb(1, 0) + _U.array().cast<float>() * _yuv2rgb(1, 1) + _V.array().cast<float>() * _yuv2rgb(1, 2)).cast<int>(),
+        (_Y.array().cast<float>() * _yuv2rgb(2, 0) + _U.array().cast<float>() * _yuv2rgb(2, 1) + _V.array().cast<float>() * _yuv2rgb(2, 2)).cast<int>(),
+    };
 }
