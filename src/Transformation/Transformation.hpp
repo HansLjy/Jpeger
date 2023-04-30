@@ -19,6 +19,18 @@ protected:
     static const Matrix8d _dct;
 };
 
+class FDCT : public Transformation {
+public:
+    void Transform(Ref<Matrix8i> block) const override;
+    void InverseTransform(Ref<Matrix8i> block) const override;
+
+protected:
+    static void Transform1D(double* vector, int stride);
+    static void InverseTransform1D(double* vector, int stride);
+    static const double S[8];
+    static const double A[6];
+};
+
 class TransformationFactory {
 public:
     static Transformation* GetTransformation(const std::string& type);
