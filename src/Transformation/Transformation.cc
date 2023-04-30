@@ -208,6 +208,20 @@ void BinDCT::InverseTransform(Ref<Matrix8i> block) const {
     }
 }
 
+#define PROD3(x)  (x + (x << 1))
+#define PROD11(x) (x + (x << 1) + (x << 3))
+#define PROD13(x) (x + (x << 2) + (x << 3))
+#define PROD15(x) (x + (x << 1) + (x << 2) + (x << 3))
+#define P1(x) (PROD13(x) >> 5)
+#define U1(x) (PROD11(x) >> 5)
+#define P2(x) (PROD11(x) >> 4)
+#define U2(x) (PROD15(x) >> 5)
+#define P3(x) (PROD3(x) >> 4)
+#define U3(x) (PROD3(x) >> 4)
+#define P4(x) (PROD13(x) >> 5)
+#define U4(x) (PROD11(x) >> 4)
+#define P5(x) (PROD13(x) >> 5)
+
 void BinDCT::Transform1D(int* vector, int stride) {
 	int offset0 = 0;
     int offset1 = offset0 + stride;
@@ -231,30 +245,30 @@ void BinDCT::Transform1D(int* vector, int stride) {
 	int v10 = v1 - v2;
 	int v11 = v0 - v3;
 	v8 = v8 + v9;
-	v9 = v8 / 2 - v9;
-	v10 = v11 * 13 / 32 - v10;
-	v11 = v11 - v10 * 11 / 32;
+	v9 = (v8 >> 1) - v9;
+	v10 = P1(v11) - v10;
+	v11 = v11 - U1(v10);
 
-	v5 = v5 - v6 * 13 / 32;
-	v6 = v6 + v5 * 11 / 16;
-	v5 = v6 * 13 / 32 - v5;
+	v5 = v5 - P4(v6);
+	v6 = v6 + U4(v5);
+	v5 = P5(v6) - v5;
 	int v12 = v4 + v5;
 	int v13 = v4 - v5;
 	int v14 = v7 - v6;
 	int v15 = v6 + v7;
-	v12 = v15 * 3 / 16 - v12;
-	v15 = v15 - v12 * 3 / 16;
-	v13 = v13 + v14 * 11 / 16;
-	v14 = v14 - v13 * 15 / 32;
+	v12 = P3(v15) - v12;
+	v15 = v15 - U3(v12);
+	v13 = v13 + P2(v14);
+	v14 = v14 - U2(v13);
 
-	vector[offset0] = v8;
-	vector[offset4] = v9;
-	vector[offset6] = v10;
-	vector[offset2] = v11;
-	vector[offset7] = v12;
-	vector[offset5] = v13;
-	vector[offset3] = v14;
-	vector[offset1] = v15;
+	vector[offset0] = v8 * S[0];
+	vector[offset4] = v9 * S[1];
+	vector[offset6] = v10 * S[2];
+	vector[offset2] = v11 * S[3];
+	vector[offset7] = v12 * S[4];
+	vector[offset5] = v13 * S[5];
+	vector[offset3] = v14 * S[6];
+	vector[offset1] = v15 * S[7];
 }
 
 void BinDCT::InverseTransform1D(int* vector, int stride) {
@@ -267,24 +281,24 @@ void BinDCT::InverseTransform1D(int* vector, int stride) {
     int offset6 = offset5 + stride;
     int offset7 = offset6 + stride;
 	
-	int v0 = vector[offset0];
-	int v1 = vector[offset4];
-	int v2 = vector[offset6];
-	int v3 = vector[offset2];
-	int v4 = vector[offset7];
-	int v5 = vector[offset5];
-	int v6 = vector[offset3];
-	int v7 = vector[offset1];
+	int v0 = vector[offset0] / S[0];
+	int v1 = vector[offset4] / S[1];
+	int v2 = vector[offset6] / S[2];
+	int v3 = vector[offset2] / S[3];
+	int v4 = vector[offset7] / S[4];
+	int v5 = vector[offset5] / S[5];
+	int v6 = vector[offset3] / S[6];
+	int v7 = vector[offset1] / S[7];
 
-	v1 = v0 / 2 - v1;
+	v1 = (v0 >> 1) - v1;
 	v0 = v0 - v1;
-	v3 = v3 + v2 * 11 / 32;
-	v2 = v3 * 13 / 32 - v2;
+	v3 = v3 + U1(v2);
+	v2 = P1(v3) - v2;
 	
-	v6 = v6 + v5 * 15 / 32;
-	v5 = v5 - v6 * 11 / 16;
-	v7 = v7 + v4 * 3 / 16;
-	v4 = v7 * 3 / 16 - v4;
+	v6 = v6 + U2(v5);
+	v5 = v5 - P2(v6);
+	v7 = v7 + U3(v4);
+	v4 = P3(v7) - v4;
 
 	int v8 = v0 + v3;
 	int v11 = v0 - v3;
@@ -294,9 +308,9 @@ void BinDCT::InverseTransform1D(int* vector, int stride) {
 	int v13 = v4 - v5;
 	int v14 = v7 - v6;
 	int v15 = v6 + v7;
-	v13 = v14 * 13 / 32 - v13;
-	v14 = v14 - v13 * 11 / 16;
-	v13 = v13 + v14 * 13 / 32;
+	v13 = P5(v14) - v13;
+	v14 = v14 - U4(v13);
+	v13 = v13 + P4(v14);
 
 	vector[offset0] = (v8 + v15) >> 2;
 	vector[offset1] = (v9 + v14) >> 2;
