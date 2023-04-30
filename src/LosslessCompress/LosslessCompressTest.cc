@@ -29,8 +29,20 @@ TEST(LosslessCompress, BitStreamTest) {
     }
 }
 
+TEST(LosslessCompress, EntrophyTest) {
+    srand(0);
+    std::stringstream strstrm;
+    std::vector<int> vec, vec_result;
+    for (int i = 0; i < vec_length; i++) {
+        vec.push_back(rand() & 1023);
+    }
+    LosslessCompress::EntrophyEncoding(vec, strstrm);
+    LosslessCompress::EntrophyDecoding(strstrm, vec_result);
+    EXPECT_EQ(vec_result, vec);
+}
+
 TEST(LosslessCompress, DPCMTest) {
-    DPCM<int> dpcm;
+    DPCM dpcm;
     VectorXi vec = VectorXi::Random(vec_length);
     for (int i = 0; i < vec_length; i++) {
         vec(i) &= 255;
@@ -54,7 +66,7 @@ TEST(LosslessCompress, RLCTest) {
         }
     }
     
-    RLC<int> rlc;
+    RLC rlc;
     std::stringstream strstrm;
     VectorXi vals_decompressed(vec_length);
     rlc.Compress(vals, strstrm);

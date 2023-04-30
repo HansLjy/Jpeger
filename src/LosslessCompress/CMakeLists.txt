@@ -1,4 +1,4 @@
-file(GLOB LOSSLESS_SRC BitStream.cc)
+file(GLOB LOSSLESS_SRC BitStream.cc LosslessCompress.cc)
 add_library(LosslessCompression ${LOSSLESS_SRC})
 target_include_directories(LosslessCompression PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(LosslessCompression PUBLIC DataStructure)

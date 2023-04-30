@@ -20,8 +20,8 @@ protected:
     static const int _block_size = 8;
     Quantization* _quantizer;
     Transformation* _transformation;
-    LosslessCompress<int>* _DC_compression;
-    LosslessCompress<int>* _AC_compression;
+    LosslessCompress* _DC_compression;
+    LosslessCompress* _AC_compression;
 
     static const int _indices[64];
     static void ZigZag(const Ref<MatrixXi>& block, Ref<VectorXi> result);

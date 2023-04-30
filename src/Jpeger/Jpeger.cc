@@ -6,8 +6,8 @@
 Jpeger::Jpeger(const Json::Value& config)
     : _quantizer(QuantizationFactory::GetQuantization(config["Quantization"].asString())),
       _transformation(TransformationFactory::GetTransformation(config["Transformation"].asString())),
-      _DC_compression(LosslessCompressFactory<int>::GetLosslessCompress(config["DC-compress"].asString())),
-      _AC_compression(LosslessCompressFactory<int>::GetLosslessCompress(config["AC-compress"].asString())){}
+      _DC_compression(LosslessCompressFactory::GetLosslessCompress(config["DC-compress"].asString())),
+      _AC_compression(LosslessCompressFactory::GetLosslessCompress(config["AC-compress"].asString())){}
 
 void Jpeger::Compress(const RGB &data, const std::string &filename) const {
     RGB origin = data;

@@ -49,7 +49,6 @@ public:
     friend std::stringstream& operator<<(std::stringstream& out, const BitStream& bitstream);
     friend std::stringstream& operator>>(std::stringstream& in, BitStream& bitstream);
 
-protected:
     std::vector<unsigned char> _data;
     unsigned char _current_free_bits = 8;
     unsigned char _current_data;
