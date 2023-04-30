@@ -186,44 +186,37 @@ RGB Jpeger::Decompress(const std::string &filename) const {
     return RGB(YUV(Y, U_full, V_full));
 }
 
+const int Jpeger::_indices[64] = {
+    0,  0,  4,  5,  13, 14, 26, 27,
+    1,  3,  6,  12, 15, 25, 28, 41,
+    2,  7,  11, 16, 24, 29, 40, 42,
+    8,  10, 17, 23, 30, 39, 43, 52,
+    9,  18, 22, 31, 38, 44, 51, 53,
+    19, 21, 32, 37, 45, 50, 54, 59,
+    20, 33, 36, 46, 49, 55, 58, 60,
+    34, 35, 47, 48, 56, 57, 61, 62
+};
+
 void Jpeger::ZigZag(const Ref<MatrixXi>& block, Ref<VectorXi> result) {
-    int index = 0;
-    for (int sum = 1; sum < _block_size * 2 - 1; sum++) {
-        if (sum & 1) {
-            // right to left
-            int row = (sum < _block_size ? 0 : sum - _block_size + 1);
-            int col = (sum < _block_size ? sum : _block_size - 1);
-            for (; row < _block_size && col >= 0; row++, col--) {
-                result(index++) = block(row, col);
+    int index = 1;
+    for (int col = 0; col < 8; col++) {
+        for (int row = 0; row < 8; row++) {
+            if (row == 0 && col == 0) {
+                continue;
             }
-        } else {
-            // left to right
-            int row = (sum < _block_size ? sum : _block_size - 1);
-            int col = (sum < _block_size ? 0 : sum - _block_size + 1);
-            for (; row >= 0 && col < _block_size; row--, col++) {
-                result(index++) = block(row, col);
-            }
+            result(_indices[index++]) = block(row, col);
         }
     }
 }
 
 void Jpeger::InverseZigZag(const Ref<VectorXi>& vec, Ref<MatrixXi> block) {
-    int index = 0;
-    for (int sum = 1; sum < _block_size * 2 - 1; sum++) {
-        if (sum & 1) {
-            // right to left
-            int row = (sum < _block_size ? 0 : sum - _block_size + 1);
-            int col = (sum < _block_size ? sum : _block_size - 1);
-            for (; row < _block_size && col >= 0; row++, col--) {
-                block(row, col) = vec(index++);
+    int index = 1;
+    for (int col = 0; col < 8; col++) {
+        for (int row = 0; row < 8; row++) {
+            if (row == 0 && col == 0) {
+                continue;
             }
-        } else {
-            // left to right
-            int row = (sum < _block_size ? sum : _block_size - 1);
-            int col = (sum < _block_size ? 0 : sum - _block_size + 1);
-            for (; row >= 0 && col < _block_size; row--, col++) {
-                block(row, col) = vec(index++);
-            }
+            block(row, col) = vec(_indices[index++]);
         }
     }
 }

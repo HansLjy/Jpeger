@@ -23,6 +23,7 @@ protected:
     LosslessCompress<int>* _DC_compression;
     LosslessCompress<int>* _AC_compression;
 
+    static const int _indices[64];
     static void ZigZag(const Ref<MatrixXi>& block, Ref<VectorXi> result);
     static void InverseZigZag(const Ref<VectorXi>& vec, Ref<MatrixXi> block);
 };

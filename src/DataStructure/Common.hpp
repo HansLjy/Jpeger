@@ -12,3 +12,4 @@ using Eigen::Matrix;
 using Eigen::VectorX;
 using Eigen::MatrixX;
 using Eigen::Ref;
+using Eigen::PermutationMatrix;
