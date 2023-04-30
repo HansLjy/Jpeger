@@ -31,6 +31,17 @@ protected:
     static const double A[6];
 };
 
+class BinDCT : public Transformation {
+public:
+    void Transform(Ref<Matrix8i> block) const override;
+    void InverseTransform(Ref<Matrix8i> block) const override;
+
+protected:
+    static void Transform1D(int* vector, int stride);
+    static void InverseTransform1D(int* vector, int stride);
+    static const double S[8];
+};
+
 class TransformationFactory {
 public:
     static Transformation* GetTransformation(const std::string& type);

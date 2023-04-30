@@ -179,11 +179,143 @@ void FDCT::InverseTransform1D(double* vector, int stride) {
 	vector[offset7] = (v0 - v7) / 2;
 }
 
+const double BinDCT::S[8] = {
+	std::sin(pi / 4) / 2,
+	std::sin(pi / 4),
+	std::sin(3 * pi / 8) / 2,
+	1.0 / (2 * std::sin(3 * pi / 8)),
+	std::sin(7 * pi / 16) / 2,
+	std::cos(3 * pi / 16) / 2,
+	1.0 / (2 * std::cos(3 * pi / 16)),
+	1.0 / (2 * std::sin(7 * pi / 16))
+};
+
+void BinDCT::Transform(Ref<Matrix8i> block) const {
+    for (int i = 0; i < 8; i++) {
+        Transform1D(block.col(i).data(), block.rowStride());
+    }
+    for (int i = 0; i < 8; i++) {
+        Transform1D(block.row(i).data(), block.colStride());
+    }
+}
+
+void BinDCT::InverseTransform(Ref<Matrix8i> block) const {
+    for (int i = 0; i < 8; i++) {
+        InverseTransform1D(block.row(i).data(), block.colStride());
+    }
+    for (int i = 0; i < 8; i++) {
+        InverseTransform1D(block.col(i).data(), block.rowStride());
+    }
+}
+
+void BinDCT::Transform1D(int* vector, int stride) {
+	int offset0 = 0;
+    int offset1 = offset0 + stride;
+    int offset2 = offset1 + stride;
+    int offset3 = offset2 + stride;
+    int offset4 = offset3 + stride;
+    int offset5 = offset4 + stride;
+    int offset6 = offset5 + stride;
+    int offset7 = offset6 + stride;
+    int v0 = vector[offset0] + vector[offset7];
+	int v1 = vector[offset1] + vector[offset6];
+	int v2 = vector[offset2] + vector[offset5];
+	int v3 = vector[offset3] + vector[offset4];
+	int v4 = vector[offset3] - vector[offset4];
+	int v5 = vector[offset2] - vector[offset5];
+	int v6 = vector[offset1] - vector[offset6];
+	int v7 = vector[offset0] - vector[offset7];
+
+	int v8  = v0 + v3;
+	int v9  = v1 + v2;
+	int v10 = v1 - v2;
+	int v11 = v0 - v3;
+	v8 = v8 + v9;
+	v9 = v8 / 2 - v9;
+	v10 = v11 * 13 / 32 - v10;
+	v11 = v11 - v10 * 11 / 32;
+
+	v5 = v5 - v6 * 13 / 32;
+	v6 = v6 + v5 * 11 / 16;
+	v5 = v6 * 13 / 32 - v5;
+	int v12 = v4 + v5;
+	int v13 = v4 - v5;
+	int v14 = v7 - v6;
+	int v15 = v6 + v7;
+	v12 = v15 * 3 / 16 - v12;
+	v15 = v15 - v12 * 3 / 16;
+	v13 = v13 + v14 * 11 / 16;
+	v14 = v14 - v13 * 15 / 32;
+
+	vector[offset0] = v8;
+	vector[offset4] = v9;
+	vector[offset6] = v10;
+	vector[offset2] = v11;
+	vector[offset7] = v12;
+	vector[offset5] = v13;
+	vector[offset3] = v14;
+	vector[offset1] = v15;
+}
+
+void BinDCT::InverseTransform1D(int* vector, int stride) {
+	int offset0 = 0;
+    int offset1 = offset0 + stride;
+    int offset2 = offset1 + stride;
+    int offset3 = offset2 + stride;
+    int offset4 = offset3 + stride;
+    int offset5 = offset4 + stride;
+    int offset6 = offset5 + stride;
+    int offset7 = offset6 + stride;
+	
+	int v0 = vector[offset0];
+	int v1 = vector[offset4];
+	int v2 = vector[offset6];
+	int v3 = vector[offset2];
+	int v4 = vector[offset7];
+	int v5 = vector[offset5];
+	int v6 = vector[offset3];
+	int v7 = vector[offset1];
+
+	v1 = v0 / 2 - v1;
+	v0 = v0 - v1;
+	v3 = v3 + v2 * 11 / 32;
+	v2 = v3 * 13 / 32 - v2;
+	
+	v6 = v6 + v5 * 15 / 32;
+	v5 = v5 - v6 * 11 / 16;
+	v7 = v7 + v4 * 3 / 16;
+	v4 = v7 * 3 / 16 - v4;
+
+	int v8 = v0 + v3;
+	int v11 = v0 - v3;
+	int v9 = v1 + v2;
+	int v10 = v1 - v2;
+	int v12 = v4 + v5;
+	int v13 = v4 - v5;
+	int v14 = v7 - v6;
+	int v15 = v6 + v7;
+	v13 = v14 * 13 / 32 - v13;
+	v14 = v14 - v13 * 11 / 16;
+	v13 = v13 + v14 * 13 / 32;
+
+	vector[offset0] = (v8 + v15) >> 2;
+	vector[offset1] = (v9 + v14) >> 2;
+	vector[offset2] = (v10 + v13) >> 2;
+	vector[offset3] = (v11 + v12) >> 2;
+	vector[offset4] = (v11 - v12) >> 2;
+	vector[offset5] = (v10 - v13) >> 2;
+	vector[offset6] = (v9 - v14) >> 2;
+	vector[offset7] = (v8 - v15) >> 2;
+}
+
+
 Transformation* TransformationFactory::GetTransformation(const std::string& type) {
     if (type == "basic") {
         return new BasicDCT;
     } else if (type == "FDCT") {
         return new FDCT;
+	} else if (type == "BDCT") {
+		return new BinDCT;
     } else {
         throw std::logic_error("Unimplemented transformation");
     }

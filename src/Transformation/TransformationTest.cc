@@ -33,3 +33,19 @@ TEST(Transformation, FDCTTest) {
     // EXPECT_EQ(block_result, block);
     std::cerr << block_result - block;
 }
+
+TEST(Transformation, BinDCTTest) {
+    srand(0);
+    BinDCT bin_dct;
+    Matrix8i block;
+    for (int row = 0; row < 8; row++) {
+        for (int col = 0; col < 8; col++) {
+            block(row, col) = rand() % 256;
+        }
+    }
+    Matrix8i block_result = block;
+    bin_dct.Transform(block_result);
+    bin_dct.InverseTransform(block_result);
+    // EXPECT_EQ(block_result, block);
+    std::cerr << block_result - block;
+}
