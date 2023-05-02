@@ -2,7 +2,7 @@
 #include <vector>
 #include "LosslessCompress.hpp"
 
-const int vec_length = 10;
+const int vec_length = 100;
 
 TEST(LosslessCompress, BitStreamTest) {
     srand(0);
@@ -23,8 +23,7 @@ TEST(LosslessCompress, BitStreamTest) {
     strstrm >> output;
     int position = 0;
     for (int i = 0; i < vec_length; i++) {
-        int val = output.GetBits<int>(position, lengths[i]);
-        position += lengths[i];
+        int val = output.GetBits<int>(lengths[i]);
         EXPECT_EQ(val, vec[i]);
     }
 }

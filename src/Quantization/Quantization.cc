@@ -28,7 +28,7 @@ void JpegQuantization::QuantizeY(Ref<MatrixXi> mat) const {
     for (int col = 0; col < total_cols; col += _block_size) {
         for (int row = 0; row < total_rows; row += _block_size) {
             mat.block<_block_size, _block_size>(row, col) =
-                mat.block<_block_size, _block_size>(row, col).array() / _Y_quantization_table.array();
+                (mat.block<_block_size, _block_size>(row, col).array() + _Y_quantization_table.array() / 2) / _Y_quantization_table.array();
         }
     }
 }
@@ -39,7 +39,7 @@ void JpegQuantization::QuantizeU(Ref<MatrixXi> mat) const {
     for (int col = 0; col < total_cols; col += _block_size) {
         for (int row = 0; row < total_rows; row += _block_size) {
             mat.block<_block_size, _block_size>(row, col) =
-                mat.block<_block_size, _block_size>(row, col).array() / _UV_quantization_table.array();
+                (mat.block<_block_size, _block_size>(row, col).array() + _UV_quantization_table.array() / 2) / _UV_quantization_table.array();
         }
     }
 }
@@ -50,7 +50,7 @@ void JpegQuantization::QuantizeV(Ref<MatrixXi> mat) const {
     for (int col = 0; col < total_cols; col += _block_size) {
         for (int row = 0; row < total_rows; row += _block_size) {
             mat.block<_block_size, _block_size>(row, col) =
-                mat.block<_block_size, _block_size>(row, col).array() / _UV_quantization_table.array();
+                (mat.block<_block_size, _block_size>(row, col).array() + _UV_quantization_table.array() / 2) / _UV_quantization_table.array();
         }
     }
 }
