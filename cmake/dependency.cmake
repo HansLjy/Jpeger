@@ -60,15 +60,3 @@ if(NOT Eigen3_FOUND)
 	)
 	message("-- Finish downloading Eigen3")
 endif()
-
-find_package(CLI11 2.3.2 EXACT)
-
-if (NOT CLI11_FOUND)
-	message("-- cli11 not found, download instead")
-	CPMAddPackage(
-		NAME cli11
-		GIT_REPOSITORY https://github.com/CLIUtils/CLI11
-		GIT_TAG        v2.3.2
-	)
-	message("-- Finish downloading cli11")
-endif()

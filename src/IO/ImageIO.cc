@@ -1,5 +1,6 @@
 #include "ImageIO.hpp"
 #include "libbmp.h"
+#include <fstream>
 
 RGB BMPIO::Read(const std::string &filename) const {
     BmpImg img;
@@ -31,4 +32,40 @@ void BMPIO::Write(const RGB &rgb, const std::string &filename) const {
     }
 
     img.write(filename);
+}
+
+RGB PPMIO::Read(const std::string &filename) const {
+    std::fstream ppm(filename);
+    std::string title;
+    ppm >> title;
+    int rows, cols;
+    ppm >> cols >> rows;
+    int type;
+    ppm >> type;
+    std::string tmp;
+    getline(ppm, tmp);
+    int padded_rows = ((rows + 15) >> 4) << 4;
+    int padded_cols = ((cols + 15) >> 4) << 4;
+    RGB rgb{
+        MatrixXi::Zero(padded_rows, padded_cols),
+        MatrixXi::Zero(padded_rows, padded_cols),
+        MatrixXi::Zero(padded_rows, padded_cols)
+    };
+    for (int row = 0; row < rows; row++) {
+        for (int col = 0; col < cols; col++) {
+            unsigned char r, g, b;
+            ppm.read(reinterpret_cast<char*>(&r), sizeof(r));
+            ppm.read(reinterpret_cast<char*>(&g), sizeof(g));
+            ppm.read(reinterpret_cast<char*>(&b), sizeof(b));
+            rgb._R(row, col) = r;
+            rgb._G(row, col) = g;
+            rgb._B(row, col) = b;
+        }
+    }
+
+    return rgb;
+}
+
+void PPMIO::Write(const RGB &rgb, const std::string &filename) const {
+    throw std::logic_error("Unimplemented error");
 }

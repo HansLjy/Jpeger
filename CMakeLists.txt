@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.22)
 project(Jpeger)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_CXX_STANDARD 17)
 
 # debug mode
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -Wall")

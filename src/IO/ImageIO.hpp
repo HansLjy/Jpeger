@@ -14,3 +14,9 @@ public:
     RGB Read(const std::string &filename) const override;
     void Write(const RGB &rgb, const std::string &filename) const override;
 };
+
+class PPMIO : public ImageIO {
+public:
+    RGB Read(const std::string &filename) const override;
+    void Write(const RGB &rgb, const std::string &filename) const override;
+};
