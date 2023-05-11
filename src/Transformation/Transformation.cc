@@ -330,7 +330,9 @@ Transformation* TransformationFactory::GetTransformation(const std::string& type
         return new FDCT;
 	} else if (type == "BDCT") {
 		return new BinDCT;
+    } else if (type == "null") {
+		return new NullDCT;
     } else {
         throw std::logic_error("Unimplemented transformation");
-    }
+	}
 }

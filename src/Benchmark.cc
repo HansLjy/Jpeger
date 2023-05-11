@@ -24,9 +24,18 @@ int main() {
         std::string output_decompressed_filename(IMAGE_PATH "/test/" + filename + ".decompressed.bmp");
 
         auto rgb = input->Read(input_filename);
+        int rows = rgb._R.rows();
+        int cols = rgb._R.cols();
         jpeger->Compress(rgb, output_filename);
-        rgb = jpeger->Decompress(output_filename);
-        output->Write(rgb, output_decompressed_filename);
+        auto rgb_result = jpeger->Decompress(output_filename);
+
+        spdlog::info("Picture: {}, 2-norm error: {} / pixel", filename, (
+            (rgb_result._R - rgb._R).cast<double>().norm()
+            + (rgb_result._G - rgb._G).cast<double>().norm()
+            + (rgb_result._B - rgb._B).cast<double>().norm()
+        ) / (rows * cols));
+
+        output->Write(rgb_result, output_decompressed_filename);
     }
 
     return 0;

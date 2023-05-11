@@ -15,15 +15,15 @@ const Matrix<double, 3, 3> YUV::_yuv2rgb = (Matrix<double, 3, 3>() <<
 YUV::YUV(const MatrixXi& Y, const MatrixXi& U, const MatrixXi& V) : _Y(Y), _U(U), _V(V) {}
 
 YUV::YUV(const RGB& rgb)
-    : _Y((rgb._R.array().cast<float>() * _rgb2yuv(0, 0) + rgb._G.array().cast<float>() * _rgb2yuv(0, 1) + rgb._B.array().cast<float>() * _rgb2yuv(0, 2)).cast<int>()),
-      _U((rgb._R.array().cast<float>() * _rgb2yuv(1, 0) + rgb._G.array().cast<float>() * _rgb2yuv(1, 1) + rgb._B.array().cast<float>() * _rgb2yuv(1, 2)).cast<int>()),
-      _V((rgb._R.array().cast<float>() * _rgb2yuv(2, 0) + rgb._G.array().cast<float>() * _rgb2yuv(2, 1) + rgb._B.array().cast<float>() * _rgb2yuv(2, 2)).cast<int>()) {
+    : _Y((rgb._R.array().cast<float>() * _rgb2yuv(0, 0) + rgb._G.array().cast<float>() * _rgb2yuv(0, 1) + rgb._B.array().cast<float>() * _rgb2yuv(0, 2)).round().cast<int>()),
+      _U((rgb._R.array().cast<float>() * _rgb2yuv(1, 0) + rgb._G.array().cast<float>() * _rgb2yuv(1, 1) + rgb._B.array().cast<float>() * _rgb2yuv(1, 2)).round().cast<int>()),
+      _V((rgb._R.array().cast<float>() * _rgb2yuv(2, 0) + rgb._G.array().cast<float>() * _rgb2yuv(2, 1) + rgb._B.array().cast<float>() * _rgb2yuv(2, 2)).round().cast<int>()) {
 }
 
 YUV::operator RGB() {
     return {
-        (_Y.array().cast<float>() * _yuv2rgb(0, 0) + _U.array().cast<float>() * _yuv2rgb(0, 1) + _V.array().cast<float>() * _yuv2rgb(0, 2)).cast<int>(),
-        (_Y.array().cast<float>() * _yuv2rgb(1, 0) + _U.array().cast<float>() * _yuv2rgb(1, 1) + _V.array().cast<float>() * _yuv2rgb(1, 2)).cast<int>(),
-        (_Y.array().cast<float>() * _yuv2rgb(2, 0) + _U.array().cast<float>() * _yuv2rgb(2, 1) + _V.array().cast<float>() * _yuv2rgb(2, 2)).cast<int>(),
+        (_Y.array().cast<float>() * _yuv2rgb(0, 0) + _U.array().cast<float>() * _yuv2rgb(0, 1) + _V.array().cast<float>() * _yuv2rgb(0, 2)).round().cast<int>(),
+        (_Y.array().cast<float>() * _yuv2rgb(1, 0) + _U.array().cast<float>() * _yuv2rgb(1, 1) + _V.array().cast<float>() * _yuv2rgb(1, 2)).round().cast<int>(),
+        (_Y.array().cast<float>() * _yuv2rgb(2, 0) + _U.array().cast<float>() * _yuv2rgb(2, 1) + _V.array().cast<float>() * _yuv2rgb(2, 2)).round().cast<int>(),
     };
 }

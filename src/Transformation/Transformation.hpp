@@ -42,6 +42,12 @@ protected:
     static const double S[8];
 };
 
+class NullDCT : public Transformation {
+public:
+    void Transform(Ref<Matrix8i> block) const override {};
+    void InverseTransform(Ref<Matrix8i> block) const override {};
+};
+
 class TransformationFactory {
 public:
     static Transformation* GetTransformation(const std::string& type);

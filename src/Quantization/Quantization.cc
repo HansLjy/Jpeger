@@ -88,6 +88,8 @@ void JpegQuantization::InverseQuantizeV(Ref<MatrixXi> mat) const {
 Quantization* QuantizationFactory::GetQuantization(const std::string &type) {
     if (type == "JPEG") {
         return new JpegQuantization;
+    } else if (type == "null") {
+        return new NullQuantization;
     } else {
         throw std::logic_error("Unimplemented quantization");
     }

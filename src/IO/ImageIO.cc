@@ -2,6 +2,10 @@
 #include "libbmp.h"
 #include <fstream>
 
+inline unsigned char Clip256(int x) {
+    return x < 0 ? 0 : x >= 256 ? 255 : x;
+}
+
 RGB BMPIO::Read(const std::string &filename) const {
     BmpImg img;
     img.read(filename);
@@ -27,7 +31,11 @@ void BMPIO::Write(const RGB &rgb, const std::string &filename) const {
     
     for (int col = 0; col < total_cols; col++) {
         for (int row = 0; row < total_rows; row++) {
-            img.set_pixel(col, row, rgb._R(row, col), rgb._G(row, col), rgb._B(row, col));
+            img.set_pixel(col, row, 
+                Clip256(rgb._R(row, col)),
+                Clip256(rgb._G(row, col)),
+                Clip256(rgb._B(row, col))
+            );
         }
     }
 
@@ -67,5 +75,19 @@ RGB PPMIO::Read(const std::string &filename) const {
 }
 
 void PPMIO::Write(const RGB &rgb, const std::string &filename) const {
-    throw std::logic_error("Unimplemented error");
+    std::ofstream ppm(filename);
+    ppm << "P6" << std::endl;
+    int rows = rgb._R.rows(), cols = rgb._R.cols();
+    ppm << cols << rows << std::endl;
+    ppm << 255 << std::endl;
+    for (int row = 0; row < rows; row++) {
+        for (int col = 0; col < cols; col++) {
+            unsigned char r = Clip256(rgb._R(row, col));
+            unsigned char g = Clip256(rgb._G(row, col));
+            unsigned char b = Clip256(rgb._B(row, col));
+            ppm.write(reinterpret_cast<const char*>(&r), sizeof(r));
+            ppm.write(reinterpret_cast<const char*>(&g), sizeof(g));
+            ppm.write(reinterpret_cast<const char*>(&b), sizeof(b));
+        }
+    }
 }

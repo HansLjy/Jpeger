@@ -10,7 +10,7 @@ Jpeger::Jpeger(const Json::Value& config)
       _AC_compression(LosslessCompressFactory::GetLosslessCompress(config["AC-compress"].asString())){}
 
 void Jpeger::Compress(const RGB &data, const std::string &filename) const {
-    RGB origin = data;
+    auto start = clock();
     auto t = clock();
     auto yuv = YUV(data);
     spdlog::info("Time spent on RGB2YUV: {}", clock() - t);
@@ -97,6 +97,8 @@ void Jpeger::Compress(const RGB &data, const std::string &filename) const {
     _AC_compression->Compress(V_AC, output);
     spdlog::info("Time spent on lossless compression: {}", clock() - t);
     
+    spdlog::info("Total time spent on compression: {}", clock() - start);
+
     std::ofstream output_file(filename);
     output_file << output.rdbuf();
     output_file.close();

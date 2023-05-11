@@ -30,6 +30,17 @@ protected:
     static const Matrix8i _UV_quantization_table;
 };
 
+class NullQuantization : public Quantization {
+public:
+    void QuantizeY(Ref<MatrixXi> mat) const override {};
+    void QuantizeU(Ref<MatrixXi> mat) const override {};
+    void QuantizeV(Ref<MatrixXi> mat) const override {};
+
+    void InverseQuantizeY(Ref<MatrixXi> mat) const override {};
+    void InverseQuantizeU(Ref<MatrixXi> mat) const override {};
+    void InverseQuantizeV(Ref<MatrixXi> mat) const override {};
+};
+
 class QuantizationFactory {
 public:
     static Quantization* GetQuantization(const std::string& type);

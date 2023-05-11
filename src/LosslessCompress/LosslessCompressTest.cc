@@ -2,7 +2,7 @@
 #include <vector>
 #include "LosslessCompress.hpp"
 
-const int vec_length = 100;
+const int vec_length = 1000;
 
 TEST(LosslessCompress, BitStreamTest) {
     srand(0);
