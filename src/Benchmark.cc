@@ -29,11 +29,11 @@ int main() {
         jpeger->Compress(rgb, output_filename);
         auto rgb_result = jpeger->Decompress(output_filename);
 
-        spdlog::info("Picture: {}, 2-norm error: {} / pixel", filename, (
+        spdlog::info("Picture: {}, {} x {}, 2-norm error: {} / pixel", filename, rows, cols, (
             (rgb_result._R - rgb._R).cast<double>().norm()
             + (rgb_result._G - rgb._G).cast<double>().norm()
             + (rgb_result._B - rgb._B).cast<double>().norm()
-        ) / (rows * cols));
+        ) / std::sqrt(rows * cols) / 3);
 
         output->Write(rgb_result, output_decompressed_filename);
     }

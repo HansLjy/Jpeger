@@ -97,7 +97,7 @@ void Jpeger::Compress(const RGB &data, const std::string &filename) const {
     _AC_compression->Compress(V_AC, output);
     spdlog::info("Time spent on lossless compression: {}", clock() - t);
     
-    spdlog::info("Total time spent on compression: {}", clock() - start);
+    spdlog::info("Total time spent on compression: {}s", (float)(clock() - start) / CLOCKS_PER_SEC);
 
     std::ofstream output_file(filename);
     output_file << output.rdbuf();
